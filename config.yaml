@@ -1,0 +1,18 @@
+# Proxy settings. Secrets come from the environment, not this file.
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  store_model_in_db: true
+  # After you create a proxy_admin in /ui, uncomment this so UI_USERNAME/UI_PASSWORD
+  # and the master key cannot log into the dashboard.
+  # disable_env_credential_login: true
+  allowed_file_extensions:
+    - ".jsonl"
+    - ".pdf"
+    - ".txt"
+  max_file_size_mb: 50
+  max_batch_file_size_mb: 200
+  max_request_size_mb: 250
+
+litellm_settings:
+  drop_params: true
+  # New virtual keys inherit these unless you override them in the UI.
