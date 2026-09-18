@@ -2,6 +2,15 @@
 # Bootstrap Let's Encrypt for gateway.syncques.in so nginx can start on 443.
 set -euo pipefail
 
+cd "$(dirname "$0")/.."
+
+if [[ -f .env ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
 DOMAIN="${DOMAIN:-gateway.syncques.in}"
 EMAIL="${CERTBOT_EMAIL:-adeebmirzam3@gmail.com}"
 LIVE_DIR="./certbot/conf/live/${DOMAIN}"
@@ -19,7 +28,8 @@ fi
 docker compose up -d nginx
 
 echo "Requesting Let's Encrypt certificate for ${DOMAIN}..."
-docker compose run --rm certbot certonly \
+# Override the renew-loop entrypoint so this one-shot actually runs certbot.
+docker compose run --rm --entrypoint certbot certbot certonly \
   --webroot \
   --webroot-path=/var/www/certbot \
   --email "${EMAIL}" \
