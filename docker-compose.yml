@@ -1,7 +1,7 @@
 # LiteLLM on a single VM behind nginx + Let's Encrypt.
 # Public access: https://gateway.syncques.in on 80/443 only.
 # LiteLLM listens on 4000 inside the compose network (not published).
-# Firewall: open 80 and 443. Do not open 4000 or 5432.
+# Firewall: open 80 and 443. Do not open 4000, 5432, or 6379.
 # Allow this instance to reach hosted Postgres on 5432.
 #
 # First TLS issue: CERTBOT_EMAIL in .env, DNS A record for gateway.syncques.in,
@@ -23,6 +23,9 @@ services:
       LITELLM_SALT_KEY: ${LITELLM_SALT_KEY}
       PROXY_BASE_URL: ${PROXY_BASE_URL:-https://gateway.syncques.in}
       STORE_MODEL_IN_DB: "True"
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       NUM_WORKERS: "1"
       NO_DOCS: "True"
       NO_REDOC: "True"
@@ -30,6 +33,25 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml:ro
     command: ["--config", "/app/config.yaml", "--port", "4000", "--num_workers", "1"]
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    expose:
+      - "6379"
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+      - --save
+      - "60"
+      - "1000"
+      - --appendonly
+      - "yes"
+    volumes:
+      - redis-data:/data
 
   nginx:
     image: nginx:1.27-alpine
@@ -57,3 +79,6 @@ services:
     command:
       - -c
       - trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done
+
+volumes:
+  redis-data:

@@ -7,8 +7,8 @@ LiteLLM is not published on port 4000; only 80/443 are public.
 
 ## Files
 
-- `docker-compose.yml` — `litellm`, `nginx`, `certbot`
-- `config.yaml` — proxy settings (no secrets)
+- `docker-compose.yml` — `litellm`, `redis`, `nginx`, `certbot`
+- `config.yaml` — proxy settings (no secrets). Response cache uses Redis (TTL 600s)
 - `.env.example` — copy to `.env` (never commit `.env`)
 - `nginx/nginx.conf` — HTTP (port 80 + ACME). TLS is enabled at container start only if live certs exist
 - `nginx/https.conf.template` — 443 server block
@@ -19,7 +19,7 @@ LiteLLM is not published on port 4000; only 80/443 are public.
 
 1. Copy `.env.example` to `.env` and fill secrets.
 2. Point DNS `gateway.syncques.in` at the VM public IP.
-3. Open firewall ports 80 and 443. Do not open 4000 or 5432.
+3. Open firewall ports 80 and 443. Do not open 4000, 5432, or 6379.
 4. Issue TLS and start the stack:
 
 ```bash

@@ -15,4 +15,11 @@ general_settings:
 
 litellm_settings:
   drop_params: true
+  cache: true
+  cache_params:
+    type: redis
+    host: os.environ/REDIS_HOST
+    port: os.environ/REDIS_PORT
+    password: os.environ/REDIS_PASSWORD
+    ttl: 600
   # New virtual keys inherit these unless you override them in the UI.
